@@ -4,7 +4,7 @@ use bevy::prelude::*;
 struct Position { x: f32, y: f32 }
 
 #[derive(Component)]
-struct Person;
+struct Organism;
 
 #[derive(Component)]
 struct Name(String);
@@ -15,13 +15,13 @@ fn print_position_system(query: Query<&Transform>) {
     }
 }
 
-fn add_people(mut commands: Commands) {
-    commands.spawn().insert(Person).insert(Name("Elaina Proctor".to_string()));
-    commands.spawn().insert(Person).insert(Name("Renzo Hume".to_string()));
-    commands.spawn().insert(Person).insert(Name("Zayna Nieves".to_string()));
+fn add_organism(mut commands: Commands) {
+    commands.spawn().insert(Organism).insert(Name("Elaina Proctor".to_string()));
+    commands.spawn().insert(Organism).insert(Name("Renzo Hume".to_string()));
+    commands.spawn().insert(Organism).insert(Name("Zayna Nieves".to_string()));
 }
 
-fn greet_people(query: Query<&Name, With<Person>>) {
+fn greet_organism(query: Query<&Name, With<Organism>>) {
     for name in query.iter() {
         println!("hello {}!", name.0);
     }
@@ -37,9 +37,9 @@ pub struct HelloPlugin;
 
 impl Plugin for HelloPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(add_people)
+        app.add_startup_system(add_organism)
             .add_system(hello_world)
-            .add_system(greet_people);
+            .add_system(greet_organism);
     }
 }
 
