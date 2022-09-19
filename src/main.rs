@@ -3,7 +3,7 @@ use bevy::prelude::*;
 #[derive(Component)]
 struct Position { x: f32, y: f32 }
 
-#[derive(Component)]
+#[derive(Component, Clone, Copy)]
 struct Organism { name: Name, dna: [u8;10] }
 
 #[derive(Component)]
@@ -33,8 +33,12 @@ fn greet_organism(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&
     }
 }
 
-fn create_new_organism(mother: &Organism, father: &Organism) -> Organism {
-    let dna =
+fn sexual_reproduction(mother: &Organism, father: &Organism) -> Organism {
+    let dna = for gene1,gene2 in mother.dna, father.dna
+}
+
+fn asexual_reproduction(organism: &Organism) -> Organism {
+    organism.clone()
 }
 
 fn hello_world() {
