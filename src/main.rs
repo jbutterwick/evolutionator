@@ -1,4 +1,7 @@
 use bevy::prelude::*;
+use rand::{Rng, SeedableRng};
+use rand::rngs::SmallRng;
+use std::cmp::{min, max};
 
 #[derive(Component)]
 struct Position { x: f32, y: f32 }
@@ -34,7 +37,15 @@ fn greet_organism(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&
 }
 
 fn sexual_reproduction(mother: &Organism, father: &Organism) -> Organism {
-    let dna = for gene1,gene2 in mother.dna, father.dna
+    let mut rng = rand::thread_rng();
+
+    let dna = mother.dna.iter().flat_map(|gene1| ->
+        father.dna.iter().flat_map(|gene2| -> 
+            rng.gen_range(min(gene1,gene2)..max(gene1,gene2))
+        )
+    ).collect();
+
+    Organism { name: "JELLO", dna }
 }
 
 fn asexual_reproduction(organism: &Organism) -> Organism {

@@ -1298,6 +1298,7 @@ name = "evolutionator"
 version = "0.0.1"
 dependencies = [
  "bevy",
+ "rand",
 ]
 
 [[package]]
