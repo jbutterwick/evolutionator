@@ -1,13 +1,17 @@
 use bevy::prelude::*;
 use rand::{Rng, SeedableRng};
-use rand::rngs::SmallRng;
-use std::cmp::{min, max};
+use std::cmp::{max, min};
 
 #[derive(Component)]
-struct Position { x: f32, y: f32 }
+struct Position {
+    x: f32,
+    y: f32,
+}
 
-#[derive(Component, Clone, Copy)]
-struct Organism { dna: [u8;10] }
+#[derive(Component, Clone)]
+struct Organism {
+    dna: [u8; 10],
+}
 
 struct Entity(u64);
 
@@ -18,19 +22,28 @@ fn print_position_system(query: Query<&Transform>) {
 }
 
 fn add_organism(mut commands: Commands) {
-    commands.spawn().insert(Organism{dna: rand::random::<[u8;10]>()})));
-    commands.spawn().insert(Organism{dna: rand::random::<[u8;10]>()})));
-    commands.spawn().insert(Organism{dna: rand::random::<[u8;10]>()})));
+    commands.spawn().insert(Organism {
+        dna: rand::random::<[u8; 10]>(),
+    });
+    commands.spawn().insert(Organism {
+        dna: rand::random::<[u8; 10]>(),
+    });
+    commands.spawn().insert(Organism {
+        dna: rand::random::<[u8; 10]>(),
+    });
 }
 
 struct GreetTimer(Timer);
 
-
-fn randomly_generate_dna() -> [u8;10] {
-    rand::random::<[u8;10]>()
+fn randomly_generate_dna() -> [u8; 10] {
+    rand::random::<[u8; 10]>()
 }
 
-fn greet_organism(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&Name, With<Organism>>) {
+fn greet_organism(
+    time: Res<Time>,
+    mut timer: ResMut<GreetTimer>,
+    query: Query<&Name, With<Organism>>,
+) {
     if timer.0.tick(time.delta()).just_finished() {
         for name in query.iter() {
             println!("hello {}!", name.0);
@@ -39,13 +52,16 @@ fn greet_organism(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&
 }
 // oh sexy
 fn sexual_reproduction(mother: &Organism, father: &Organism) -> Organism {
-    let mut rng = rand::thread_rng();
-
-    let dna = mother.dna.iter().flat_map(|gene1| ->
-        father.dna.iter().flat_map(|gene2| -> 
-            rng.gen_range(min(gene1,gene2)..max(gene1,gene2))
-        )
-    ).collect();
+    let dna = mother
+        .dna
+        .iter()
+        .flat_map(|gene1| {
+            father.dna.iter().flat_map(|gene2| {
+                let mut rng = rand::thread_rng();
+                rng.gen_range(min(gene1, gene2)..max(gene1, gene2))
+            })
+        })
+        .collect();
 
     Organism { dna }
 }
@@ -74,4 +90,3 @@ fn main() {
         .add_plugin(HelloPlugin)
         .run();
 }
-
