@@ -7,10 +7,7 @@ use std::cmp::{min, max};
 struct Position { x: f32, y: f32 }
 
 #[derive(Component, Clone, Copy)]
-struct Organism { name: Name, dna: [u8;10] }
-
-#[derive(Component)]
-struct Name(String);
+struct Organism { dna: [u8;10] }
 
 struct Entity(u64);
 
@@ -21,12 +18,17 @@ fn print_position_system(query: Query<&Transform>) {
 }
 
 fn add_organism(mut commands: Commands) {
-    commands.spawn().insert(Organism{ name: ("Elaina Proctor".to_string()})));
-    commands.spawn().insert(Organism{ name: ("Renzo Hume".to_string()})));
-    commands.spawn().insert(Organism{ name: ("Zayna Nieves".to_string()})));
+    commands.spawn().insert(Organism{dna: rand::random::<[u8;10]>()})));
+    commands.spawn().insert(Organism{dna: rand::random::<[u8;10]>()})));
+    commands.spawn().insert(Organism{dna: rand::random::<[u8;10]>()})));
 }
 
 struct GreetTimer(Timer);
+
+
+fn randomly_generate_dna() -> [u8;10] {
+    rand::random::<[u8;10]>()
+}
 
 fn greet_organism(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&Name, With<Organism>>) {
     if timer.0.tick(time.delta()).just_finished() {
@@ -35,7 +37,7 @@ fn greet_organism(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&
         }
     }
 }
-
+// oh sexy
 fn sexual_reproduction(mother: &Organism, father: &Organism) -> Organism {
     let mut rng = rand::thread_rng();
 
@@ -45,7 +47,7 @@ fn sexual_reproduction(mother: &Organism, father: &Organism) -> Organism {
         )
     ).collect();
 
-    Organism { name: "JELLO", dna }
+    Organism { dna }
 }
 
 fn asexual_reproduction(organism: &Organism) -> Organism {
