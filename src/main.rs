@@ -93,7 +93,7 @@ fn sexual_reproduction(mut commands: Commands, mother: &Organism, father: &Organ
 }
 
 fn asexual_reproduction(mut commands: Commands, organism: &Organism, num: i32) {
-    for id in num {
+    for id in 0..num {
         commands.spawn().insert(Organism {
             id,
             dna: organism.dna.clone(),
