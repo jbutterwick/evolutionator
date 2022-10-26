@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use rand::Rng;
 use std::cmp::{max, min};
+use std::fmt;
 
 const TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
 
@@ -12,11 +13,11 @@ enum GameState {
     Game,
 }
 
-#[derive(Resource, Debug, Component, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, Component, PartialEq, Eq, Clone, Copy)]
 struct Volume(u32);
 
 // One of the two settings that can be set through the menu. It will be a resource in the app
-#[derive(Resource, Debug, Component, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, Component, PartialEq, Eq, Clone, Copy)]
 enum DisplayQuality {
     Low,
     Medium,
@@ -32,7 +33,35 @@ struct Position {
 #[derive(Component, Clone)]
 struct Organism {
     id: i32,
-    dna: [u8; 10],
+    dna: Dna,
+}
+
+impl Organism {}
+
+type RawDna = [u8; 10];
+
+#[derive(Component, Clone)]
+struct Dna {
+    dna: RawDna,
+}
+
+impl Dna {
+    fn get_bit_at(input: u8, n: u8) -> Option<bool> {
+        if n < 8 {
+            Some(input & (1 << n) != 0)
+        } else {
+            None
+        }
+    }
+}
+
+impl fmt::Display for Dna {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for int in self.dna {
+            write!(f, "{},", int)?;
+        }
+        Ok(())
+    }
 }
 
 struct Entity(u64);
@@ -43,62 +72,38 @@ fn print_position_system(query: Query<&Transform>) {
     }
 }
 
-fn add_organism(mut commands: Commands) {
-    for id in num {
+fn setup(mut commands: Commands) {
+    commands.spawn_bundle(Camera2dBundle::default());
+
+    for id in 0..100 {
         commands.spawn().insert(Organism {
             id,
-            dna: rand::random::<[u8; 10]>(),
+            dna: Dna {
+                dna: rand::random::<RawDna>(),
+            },
         });
     }
 }
 
 struct GreetTimer(Timer);
 
-fn randomly_generate_dna() -> [u8; 10] {
-    rand::random::<[u8; 10]>()
+fn randomly_generate_dna() -> RawDna {
+    rand::random::<RawDna>()
 }
 
 fn greet_organism(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&Organism>) {
     if timer.0.tick(time.delta()).just_finished() {
         for organism in query.iter() {
-            println!("hello {}!", organism.id);
+            println!(
+                "hello {}! With dna like this: {}",
+                organism.id, organism.dna
+            );
         }
     }
 }
 
-fn get_bit_at(input: u8, n: u8) -> Option<bool> {
-    if n < 8 {
-        Some(input & (1 << n) != 0)
-    } else {
-        None
-    }
-}
-
-// oh sexy
-fn sexual_reproduction(mut commands: Commands, mother: &Organism, father: &Organism) {
-    if mother.dna.multiplicative && father.dna.multiplicative {}
-    commands.spawn().insert(Organism {
-        id,
-        dna: mother
-            .dna
-            .into_iter()
-            .flat_map(|gene1| {
-                father.dna.into_iter().flat_map(|gene2| {
-                    let mut rng = rand::thread_rng();
-                    rng.gen_range(min(gene1, gene2)..max(gene1, gene2))
-                })
-            })
-            .collect(),
-    });
-}
-
-fn asexual_reproduction(mut commands: Commands, organism: &Organism, num: i32) {
-    for id in 0..num {
-        commands.spawn().insert(Organism {
-            id,
-            dna: organism.dna.clone(),
-        });
-    }
+fn spawn_organism(mut commands: Commands, organism: Organism) {
+    commands.spawn().insert(organism);
 }
 
 fn hello_world() {
@@ -110,7 +115,7 @@ pub struct HelloPlugin;
 impl Plugin for HelloPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(GreetTimer(Timer::from_seconds(2.0, true)))
-            .add_startup_system(add_organism)
+            .add_startup_system(setup)
             .add_system(greet_organism);
     }
 }
