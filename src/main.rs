@@ -73,10 +73,10 @@ fn print_position_system(query: Query<&Transform>) {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn_bundle(Camera2dBundle::default());
+    commands.spawn(Camera2dBundle::default());
 
     for id in 0..100 {
-        commands.spawn().insert(Organism {
+        commands.spawn(Organism {
             id,
             dna: Dna {
                 dna: rand::random::<RawDna>(),
@@ -85,6 +85,7 @@ fn setup(mut commands: Commands) {
     }
 }
 
+#[derive(Resource)]
 struct GreetTimer(Timer);
 
 fn randomly_generate_dna() -> RawDna {
@@ -103,7 +104,7 @@ fn greet_organism(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&
 }
 
 fn spawn_organism(mut commands: Commands, organism: Organism) {
-    commands.spawn().insert(organism);
+    commands.spawn(organism);
 }
 
 fn hello_world() {
@@ -114,7 +115,7 @@ pub struct HelloPlugin;
 
 impl Plugin for HelloPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(GreetTimer(Timer::from_seconds(2.0, true)))
+        app.insert_resource(GreetTimer(Timer::from_seconds(2.0, TimerMode::Once)))
             .add_startup_system(setup)
             .add_system(greet_organism);
     }
