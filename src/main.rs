@@ -2,8 +2,10 @@ use bevy::prelude::*;
 use rand::Rng;
 use std::cmp::{max, min};
 use std::fmt;
+use bevy::sprite::MaterialMesh2dBundle;
 
 const TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
+const BACKGROUND_COLOR: Color = Color::rgb(0.35, 0.35, 0.35);
 
 // Enum that will be used as a global state for the game
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
@@ -72,7 +74,11 @@ fn print_position_system(query: Query<&Transform>) {
     }
 }
 
-fn setup(mut commands: Commands) {
+fn setup(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>
+) {
     commands.spawn(Camera2dBundle::default());
 
     for id in 0..100 {
@@ -83,6 +89,32 @@ fn setup(mut commands: Commands) {
             },
         });
     }
+
+    commands.spawn(SpriteBundle {
+        sprite: Sprite {
+            color: Color::rgb(0.25, 0.25, 0.75),
+            custom_size: Some(Vec2::new(50.0, 100.0)),
+            ..default()
+        },
+        ..default()
+    });
+
+    // Circle
+    commands.spawn(MaterialMesh2dBundle {
+        mesh: meshes.add(shape::Circle::new(50.).into()).into(),
+        material: materials.add(ColorMaterial::from(Color::PURPLE)),
+        transform: Transform::from_translation(Vec3::new(-100., 0., 0.)),
+        ..default()
+    });
+
+    // Hexagon
+    commands.spawn(MaterialMesh2dBundle {
+        mesh: meshes.add(shape::RegularPolygon::new(50., 6).into()).into(),
+        material: materials.add(ColorMaterial::from(Color::TURQUOISE)),
+        transform: Transform::from_translation(Vec3::new(100., 0., 0.)),
+        ..default()
+    });
+
 }
 
 #[derive(Resource)]
