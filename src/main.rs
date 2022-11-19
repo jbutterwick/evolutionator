@@ -1,8 +1,8 @@
 use bevy::prelude::*;
+use bevy::sprite::MaterialMesh2dBundle;
 use rand::Rng;
 use std::cmp::{max, min};
 use std::fmt;
-use bevy::sprite::MaterialMesh2dBundle;
 
 const TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
 const BACKGROUND_COLOR: Color = Color::rgb(0.35, 0.35, 0.35);
@@ -32,10 +32,75 @@ struct Position {
     y: f32,
 }
 
+#[derive(Clone)]
+enum Sensor {
+    Age,
+    BoundaryDist,
+    BoundaryDistX,
+    BoundaryDistY,
+    LastMoveDirX,
+    LastMoveDirY,
+    LocX,
+    LocY,
+    LongprobePopFwd,
+    LongprobeBarFwd,
+    BarrierFwd,
+    BarrierLr,
+    Osc1,
+    Population,
+    PopulationFws,
+    PopulationLr,
+    Random,
+    Signal0,
+    Signal0Fwd,
+    Signal0Lr,
+    GeneticSimFwd,
+}
+
+#[derive(Clone)]
+enum Action {
+    MoveEast,
+    MoveWest,
+    MoveNorth,
+    MoveSouth,
+    MoveForward,
+    MoveX,
+    MoveY,
+    SetResponsiveness,
+    SetOscillatorPeriod,
+    EmitSignal0,
+    KillForward,
+    MoveReverse,
+    MoveLeft,
+    MoveRight,
+    MoveRl,
+    MoveRandom,
+    SetLongprobeDist,
+}
+
 #[derive(Component, Clone)]
 struct Organism {
     id: i32,
     dna: Dna,
+    brain: Brain,
+}
+
+#[derive(Component, Clone)]
+struct Brain {
+    sensor_neurons: Vec<SensorNeuron>,
+    action_neurons: Vec<ActionNeuron>,
+}
+
+#[derive(Component, Clone)]
+struct SensorNeuron {
+    name: Sensor,
+    weight: i32,
+}
+
+#[derive(Component, Clone)]
+struct ActionNeuron {
+    name: Action,
+    weight: i32,
 }
 
 impl Organism {}
@@ -77,7 +142,7 @@ fn print_position_system(query: Query<&Transform>) {
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>
+    mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     commands.spawn(Camera2dBundle::default());
 
@@ -87,6 +152,7 @@ fn setup(
             dna: Dna {
                 dna: rand::random::<RawDna>(),
             },
+            brain: Brain { sensor_neurons: vec![], action_neurons: vec![] },
         });
     }
 
@@ -114,7 +180,6 @@ fn setup(
         transform: Transform::from_translation(Vec3::new(100., 0., 0.)),
         ..default()
     });
-
 }
 
 #[derive(Resource)]
