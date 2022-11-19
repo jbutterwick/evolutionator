@@ -26,6 +26,18 @@ enum DisplayQuality {
     High,
 }
 
+#[derive(Clone)]
+enum CardinalDirection{
+    North,
+    NorthEast,
+    East,
+    SouthEast,
+    South,
+    SouthWest,
+    West,
+    NorthWest
+}
+
 #[derive(Component)]
 struct Position {
     x: f32,
@@ -83,6 +95,11 @@ struct Organism {
     id: i32,
     dna: Dna,
     brain: Brain,
+    health:bool,
+    loc:Position,
+    birth_loc:Position,
+    age: i32,
+    last_move_dir:CardinalDirection,
 }
 
 #[derive(Component, Clone)]
@@ -153,6 +170,11 @@ fn setup(
                 dna: rand::random::<RawDna>(),
             },
             brain: Brain { sensor_neurons: vec![], action_neurons: vec![] },
+            health: false,
+            loc: Position { x: 0.0, y: 0.0 },
+            birth_loc: Position { x: 0.0, y: 0.0 },
+            age: 0,
+            last_move_dir: CardinalDirection::North
         });
     }
 
