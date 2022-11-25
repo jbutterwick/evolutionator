@@ -1,16 +1,13 @@
 mod organism;
 
-use organism::*;
 use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
-use rand::Rng;
-use std::cmp::{max, min};
-use std::fmt;
+use organism::*;
+use rand::{thread_rng, Rng};
 
 const TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
 const BACKGROUND_COLOR: Color = Color::rgb(0.35, 0.35, 0.35);
 
-// Enum that will be used as a global state for the game
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
 enum GameState {
     Splash,
@@ -30,7 +27,7 @@ enum DisplayQuality {
 }
 
 #[derive(Clone)]
-enum CardinalDirection{
+enum CardinalDirection {
     North,
     NorthEast,
     East,
@@ -38,13 +35,30 @@ enum CardinalDirection{
     South,
     SouthWest,
     West,
-    NorthWest
+    NorthWest,
 }
+
+const X_MAX: f32 = 1920.00;
+const Y_MAX: f32 = 1080.00;
 
 #[derive(Component, Clone)]
 struct Position {
     x: f32,
     y: f32,
+}
+
+impl Position {
+    pub(crate) fn new() -> Self {
+        Self { x: 0.0, y: 0.0 }
+    }
+
+    pub(crate) fn random() -> Self {
+        let mut rng = thread_rng();
+        Self {
+            x: rng.gen_range(0.0..X_MAX),
+            y: rng.gen_range(0.0..Y_MAX),
+        }
+    }
 }
 
 struct Entity(u64);
@@ -63,18 +77,7 @@ fn setup(
     commands.spawn(Camera2dBundle::default());
 
     for id in 0..100 {
-        commands.spawn(Organism {
-            id,
-            dna: Dna {
-                dna: rand::random::<RawDna>(),
-            },
-            brain: Brain { sensor_neurons: vec![], action_neurons: vec![] },
-            health: false,
-            loc: Position { x: 0.0, y: 0.0 },
-            birth_loc: Position { x: 0.0, y: 0.0 },
-            age: 0,
-            last_move_dir: CardinalDirection::North
-        });
+        commands.spawn(Organism::new(id));
     }
 
     commands.spawn(SpriteBundle {
@@ -106,10 +109,6 @@ fn setup(
 #[derive(Resource)]
 struct GreetTimer(Timer);
 
-fn randomly_generate_dna() -> RawDna {
-    rand::random::<RawDna>()
-}
-
 fn greet_organism(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&Organism>) {
     if timer.0.tick(time.delta()).just_finished() {
         for organism in query.iter() {
@@ -119,14 +118,6 @@ fn greet_organism(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&
             );
         }
     }
-}
-
-fn spawn_organism(mut commands: Commands, organism: Organism) {
-    commands.spawn(organism);
-}
-
-fn hello_world() {
-    println!("hello evolutionator!!");
 }
 
 pub struct HelloPlugin;

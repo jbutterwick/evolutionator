@@ -1,6 +1,6 @@
-use std::fmt;
 use crate::{CardinalDirection, Position};
 use bevy::prelude::*;
+use std::fmt;
 
 #[derive(Clone)]
 pub(crate) enum Sensor {
@@ -12,8 +12,8 @@ pub(crate) enum Sensor {
     LastMoveDirY,
     LocX,
     LocY,
-    LongprobePopFwd,
-    LongprobeBarFwd,
+    LongProbePopFwd,
+    LongProbeBarFwd,
     BarrierFwd,
     BarrierLr,
     Osc1,
@@ -45,7 +45,7 @@ pub(crate) enum Action {
     MoveRight,
     MoveRl,
     MoveRandom,
-    SetLongprobeDist,
+    SetLongProbeDist,
 }
 
 #[derive(Component, Clone)]
@@ -53,17 +53,26 @@ pub(crate) struct Organism {
     pub(crate) id: i32,
     pub(crate) dna: Dna,
     pub(crate) brain: Brain,
-    pub(crate) health:bool,
-    pub(crate) loc:Position,
-    pub(crate) birth_loc:Position,
+    pub(crate) health: bool,
+    pub(crate) loc: Position,
+    pub(crate) birth_loc: Position,
     pub(crate) age: i32,
-    pub(crate) last_move_dir:CardinalDirection,
+    pub(crate) last_move_dir: CardinalDirection,
 }
 
 #[derive(Component, Clone)]
 pub(crate) struct Brain {
     pub(crate) sensor_neurons: Vec<SensorNeuron>,
     pub(crate) action_neurons: Vec<ActionNeuron>,
+}
+
+impl Brain {
+    pub(crate) fn new() -> Self {
+        Self {
+            sensor_neurons: vec![],
+            action_neurons: vec![],
+        }
+    }
 }
 
 #[derive(Component, Clone)]
@@ -78,7 +87,20 @@ pub(crate) struct ActionNeuron {
     pub(crate) weight: i32,
 }
 
-impl Organism {}
+impl Organism {
+    pub(crate) fn new(id: i32) -> Self {
+        Self {
+            id,
+            dna: Dna::random(),
+            brain: Brain::new(),
+            health: false,
+            loc: Position::new(),
+            birth_loc: Position::new(),
+            age: 0,
+            last_move_dir: CardinalDirection::North,
+        }
+    }
+}
 
 pub(crate) type RawDna = [u8; 10];
 
@@ -88,6 +110,16 @@ pub(crate) struct Dna {
 }
 
 impl Dna {
+    pub(crate) fn new(dna: RawDna) -> Self {
+        Self { dna }
+    }
+
+    pub(crate) fn random() -> Self {
+        Self {
+            dna: rand::random::<RawDna>(),
+        }
+    }
+
     fn get_bit_at(input: u8, n: u8) -> Option<bool> {
         if n < 8 {
             Some(input & (1 << n) != 0)
