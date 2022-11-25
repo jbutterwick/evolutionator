@@ -1,4 +1,4 @@
-use crate::{CardinalDirection, Position};
+use crate::Position;
 use bevy::prelude::*;
 use std::fmt;
 
@@ -57,7 +57,6 @@ pub(crate) struct Organism {
     pub(crate) loc: Position,
     pub(crate) birth_loc: Position,
     pub(crate) age: i32,
-    pub(crate) last_move_dir: CardinalDirection,
 }
 
 #[derive(Component, Clone)]
@@ -97,7 +96,6 @@ impl Organism {
             loc: Position::new(),
             birth_loc: Position::new(),
             age: 0,
-            last_move_dir: CardinalDirection::North,
         }
     }
 }

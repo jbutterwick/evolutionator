@@ -1,3 +1,4 @@
+mod assets;
 mod organism;
 
 use bevy::prelude::*;
@@ -24,18 +25,6 @@ enum DisplayQuality {
     Low,
     Medium,
     High,
-}
-
-#[derive(Clone)]
-enum CardinalDirection {
-    North,
-    NorthEast,
-    East,
-    SouthEast,
-    South,
-    SouthWest,
-    West,
-    NorthWest,
 }
 
 const X_MAX: f32 = 1920.00;
@@ -77,33 +66,15 @@ fn setup(
     commands.spawn(Camera2dBundle::default());
 
     for id in 0..100 {
-        commands.spawn(Organism::new(id));
-    }
-
-    commands.spawn(SpriteBundle {
-        sprite: Sprite {
-            color: Color::rgb(0.25, 0.25, 0.75),
-            custom_size: Some(Vec2::new(50.0, 100.0)),
+        let organism = Organism::new(id);
+        commands.spawn(MaterialMesh2dBundle {
+            mesh: meshes.add(shape::RegularPolygon::new(50., 6).into()).into(),
+            material: materials.add(ColorMaterial::from(Color::TURQUOISE)),
+            transform: Transform::from_translation(Vec3::new(100., 0., 0.)),
             ..default()
-        },
-        ..default()
-    });
-
-    // Circle
-    commands.spawn(MaterialMesh2dBundle {
-        mesh: meshes.add(shape::Circle::new(50.).into()).into(),
-        material: materials.add(ColorMaterial::from(Color::PURPLE)),
-        transform: Transform::from_translation(Vec3::new(-100., 0., 0.)),
-        ..default()
-    });
-
-    // Hexagon
-    commands.spawn(MaterialMesh2dBundle {
-        mesh: meshes.add(shape::RegularPolygon::new(50., 6).into()).into(),
-        material: materials.add(ColorMaterial::from(Color::TURQUOISE)),
-        transform: Transform::from_translation(Vec3::new(100., 0., 0.)),
-        ..default()
-    });
+        });
+        commands.spawn(organism);
+    }
 }
 
 #[derive(Resource)]
@@ -113,7 +84,7 @@ fn greet_organism(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&
     if timer.0.tick(time.delta()).just_finished() {
         for organism in query.iter() {
             println!(
-                "hello {}! With dna like this: {}",
+                "hello organism #{}! You've been created with dna that looks like this: {}",
                 organism.id, organism.dna
             );
         }
